@@ -86,17 +86,37 @@ function useOre(unitSetting) {
   return String(unitSetting || "").trim().toLowerCase().indexOf("re") !== -1
 }
 
-function fmt(sek, ore) {
+function normalizedDecimals(value) {
+  var n = parseInt(value, 10)
+  if (isNaN(n) || n < 0) return 0
+  return n > 2 ? 2 : n
+}
+
+// Öre text, sign always kept. Rounding a slightly negative price crosses
+// zero — Math.round(-0.2) is JavaScript's -0, which stringifies to "0" — so
+// an hour that pays you to consume used to read as a plain "0 öre". Format
+// the magnitude, then put the sign back.
+function oreText(sek, decimals) {
+  var d = normalizedDecimals(decimals)
+  var scaled = sek * 100
+  // Round before taking the magnitude, so whole-öre rounding stays exactly
+  // what it has always been: Math.round(-1.5) is -1, but rounding the
+  // magnitude instead would give -2.
+  var body = d > 0 ? Math.abs(scaled).toFixed(d) : String(Math.abs(Math.round(scaled)))
+  return (scaled < 0 ? "-" : "") + body.replace(".", ",")
+}
+
+function fmt(sek, ore, decimals) {
   if (sek === null || sek === undefined || isNaN(sek)) return "—"
-  if (ore) return Math.round(sek * 100) + " öre"
+  if (ore) return oreText(sek, decimals) + " öre"
   return sek.toFixed(2).replace(".", ",") + " kr"
 }
 
 // Bar label stays compact: no unit suffix in öre mode reads fine ("134"),
 // but kr needs the suffix to not look like a version number.
-function fmtShort(sek, ore) {
+function fmtShort(sek, ore, decimals) {
   if (sek === null || sek === undefined || isNaN(sek)) return ""
-  if (ore) return String(Math.round(sek * 100))
+  if (ore) return oreText(sek, decimals)
   return sek.toFixed(2).replace(".", ",")
 }
 
@@ -117,7 +137,9 @@ if (typeof module !== "undefined") {
     stats: stats,
     levelFor: levelFor,
     normalizedZone: normalizedZone,
+    normalizedDecimals: normalizedDecimals,
     useOre: useOre,
+    oreText: oreText,
     fmt: fmt,
     fmtShort: fmtShort,
     apiUrl: apiUrl

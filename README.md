@@ -13,7 +13,8 @@ tomorrow so you know when to run the dishwasher.
 - Today's low / average / high at a glance
 - Hover any bar to read the exact hour and price
 - All four Swedish price zones (SE1–SE4), configurable in settings
-- Prices in kr or öre
+- Prices in kr or öre, with 0, 1 or 2 decimals in öre mode
+- Negative prices keep their sign, including the hours that round to zero
 - Zero configuration to start, no API key, no account — data from the free
   [elprisetjustnu.se](https://www.elprisetjustnu.se) API
 - Theme aware — follows your Omarchy theme like the built-in widgets
@@ -39,11 +40,14 @@ Omarchy Quattro shell. No accounts, no API keys, no telemetry.
 
 Click the widget, then the gear in the panel's top-right corner: pick your
 price zone (SE1 Luleå, SE2 Sundsvall, SE3 Stockholm/Göteborg, SE4 Malmö)
-and unit (kr or öre), then save. Settings can also be set from a terminal:
+and unit (kr or öre), then save. Öre mode adds a decimals control — `14`,
+`14,1` or `14,08` — which defaults to whole öre. Settings can also be set
+from a terminal:
 
 ```bash
 omarchy bar set io.github.antoniowav.elpris zone SE4
 omarchy bar set io.github.antoniowav.elpris unit öre
+omarchy bar set io.github.antoniowav.elpris decimals 2
 ```
 
 Middle-click the widget to force a refresh.

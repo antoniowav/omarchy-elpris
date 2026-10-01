@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.antoniowav.elpris",
   "name": "Elpris",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "author": "Antonio Piattelli",
   "license": "MIT",
   "description": "Nord Pool electricity spot price in the bar. Hourly chart, cheapest hours at a glance.",
@@ -20,7 +20,8 @@
     "defaultSection": "right",
     "defaults": {
       "zone": "SE3",
-      "unit": "kr"
+      "unit": "kr",
+      "decimals": 0
     },
     "schema": [
       {
@@ -34,6 +35,15 @@
         "type": "string",
         "label": "Unit (kr or öre)",
         "defaultValue": "kr"
+      },
+      {
+        "key": "decimals",
+        "type": "integer",
+        "label": "Öre decimals",
+        "min": 0,
+        "max": 2,
+        "step": 1,
+        "defaultValue": 0
       }
     ]
   }

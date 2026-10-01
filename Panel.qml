@@ -49,6 +49,7 @@ Panel {
   property bool editingSettings: false
   property string editZone: "SE3"
   property string editUnit: "kr"
+  property int editDecimals: 0
 
   function persistSettings(values) {
     var entry = { id: root.moduleName }
@@ -64,6 +65,7 @@ Panel {
   function startEditingSettings() {
     editZone = root.zone
     editUnit = root.ore ? "öre" : "kr"
+    editDecimals = root.decimals
     editingSettings = true
   }
 
@@ -72,7 +74,7 @@ Panel {
   }
 
   function saveSettings() {
-    persistSettings({ zone: editZone, unit: editUnit })
+    persistSettings({ zone: editZone, unit: editUnit, decimals: editDecimals })
     editingSettings = false
   }
 
@@ -85,6 +87,7 @@ Panel {
 
   readonly property string zone: Model.normalizedZone(setting("zone", "SE3"))
   readonly property bool ore: Model.useOre(setting("unit", "kr"))
+  readonly property int decimals: Model.normalizedDecimals(setting("decimals", 0))
 
   onZoneChanged: {
     todayEntries = []
@@ -102,7 +105,7 @@ Panel {
   // Shared scale across both charts so today and tomorrow are comparable.
   readonly property double chartMax: Math.max(todayStats ? todayStats.max : 0, tomorrowStats ? tomorrowStats.max : 0, 0.0001)
 
-  readonly property string barLabel: current ? ("⌁ " + Model.fmtShort(current.sek, ore)) : ""
+  readonly property string barLabel: current ? ("⌁ " + Model.fmtShort(current.sek, ore, decimals)) : ""
 
   readonly property color cheapColor: "#69b076"
   readonly property color expensiveColor: "#d0764f"
@@ -114,7 +117,7 @@ Panel {
   }
 
   function fmt(sek) {
-    return Model.fmt(sek, ore)
+    return Model.fmt(sek, ore, decimals)
   }
 
   // Static curl pipeline: the URL enters via Process.environment and head -c
@@ -528,6 +531,56 @@ Panel {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: root.editUnit = parent.modelData.key
+                  }
+                }
+              }
+            }
+          }
+
+          // Only meaningful in öre: kr already carries two decimals.
+          Column {
+            width: parent.width
+            spacing: Style.space(4)
+            visible: root.editUnit !== "kr"
+
+            Text {
+              text: "ÖRE DECIMALS"
+              color: Qt.darker(root.bar ? root.bar.foreground : Color.foreground, 1.5)
+              font.family: root.bar ? root.bar.fontFamily : Style.font.family
+              font.pixelSize: Style.font.caption
+              font.letterSpacing: 1
+            }
+
+            Row {
+              width: parent.width
+              spacing: Style.space(8)
+
+              Repeater {
+                model: [{ value: 0, title: "14" }, { value: 1, title: "14,1" }, { value: 2, title: "14,08" }]
+
+                Rectangle {
+                  required property var modelData
+                  readonly property bool active: root.editDecimals === modelData.value
+                  width: (parent.width - 2 * Style.space(8)) / 3
+                  height: Style.space(26)
+                  radius: Style.cornerRadius
+                  color: active ? Color.accent : "transparent"
+                  border.width: active ? 0 : 1
+                  border.color: Qt.darker(root.bar ? root.bar.foreground : Color.foreground, 1.8)
+
+                  Text {
+                    anchors.centerIn: parent
+                    text: parent.modelData.title
+                    color: parent.active ? Color.background : Qt.darker(root.bar ? root.bar.foreground : Color.foreground, 1.3)
+                    font.family: root.bar ? root.bar.fontFamily : Style.font.family
+                    font.pixelSize: Style.font.caption
+                    font.letterSpacing: 1
+                  }
+
+                  MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.editDecimals = parent.modelData.value
                   }
                 }
               }
