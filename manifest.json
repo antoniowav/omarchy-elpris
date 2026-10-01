@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.antoniowav.elpris",
   "name": "Elpris",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "author": "Antonio Piattelli",
   "license": "MIT",
   "description": "Nord Pool electricity spot price in the bar. Hourly chart, cheapest hours at a glance.",
